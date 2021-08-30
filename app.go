@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-	"demo/model"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -12,6 +12,9 @@ import (
 	"syscall"
 	"time"
 
+	"demo/model"
+
+	"github.com/go-redis/redis"
 	"github.com/gorilla/mux"
 )
 
@@ -34,12 +37,39 @@ func quoteOfTheDayHandler() http.HandlerFunc {
 	}
 }
 
+func redisHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		redisURL, ok := os.LookupEnv("REDIS_URL")
+		if !ok {
+			w.Write([]byte("REDIS_URL is not present"))
+			return
+		}
+
+		opt, err := redis.ParseURL(redisURL)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println("addr is", opt.Addr)
+		fmt.Println("db is", opt.DB)
+		fmt.Println("password is", opt.Password)
+
+		// Create client as usually.
+		client := redis.NewClient(opt)
+		resultStr := "Redis Handler : Connected"
+		if err := client.Ping().Err(); err != nil {
+			resultStr = "Redis Handler : Disconnected"
+		}
+		w.Write([]byte(resultStr))
+	}
+}
+
 func main() {
 	// Create Server and Route Handlers
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", indexHandler)
 	r.HandleFunc("/quote", quoteOfTheDayHandler())
+	r.HandleFunc("/redis", redisHandler())
 
 	srv := &http.Server{
 		Handler:      r,
