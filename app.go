@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"demo/model"
 	"encoding/json"
 	"errors"
 	"log"
@@ -12,7 +13,6 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/tumeotu/demo/model"
 )
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
