@@ -11,8 +11,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/callicoder/go-docker-compose/model"
 	"github.com/gorilla/mux"
+	"github.com/tumeotu/demo/model"
 )
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
